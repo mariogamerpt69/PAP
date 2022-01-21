@@ -2,7 +2,9 @@
 session_start();
 
 if ( !isset($_POST['username'], $_POST['password']) ) {
-	exit('Insere todos os dados!');
+	echo('Insere todos os dados!');
+    header("Refresh: 5; url=login.php");
+    exit;
 }
 
 require_once('db.php');
@@ -24,10 +26,14 @@ if ($stmt = $con->prepare('SELECT id, password FROM accounts WHERE username = ?'
             $_SESSION['id'] = $id;
             header('Location: index.php');
         } else {
-            echo 'Password incorreta!';
+            $_SESSION['error'] = 'Palavra-passe incorreta!';
+            header('Location: login.php');
+            echo 'A Palavra-passe está incorreta!';
         }
     } else {
-        echo 'username não existe!';
+        $_SESSION['error'] = 'Nome de utilizador incorreto!';
+        header('Location: login.php');
+        echo 'O Nome de Utilizador não existe!';
     }
 
 	$stmt->close();

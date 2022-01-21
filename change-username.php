@@ -29,46 +29,45 @@ $stmt->close();
 			<div>
 				<h1><a href="index.php"><i class="fas fa-home"></i>CrytpoScam</a></h1>
 				<a href="buy.php"><i class="fab fa-bitcoin"></i></i>Comprar</a>
-				<a href="withdraw.php"><i class="far fa-money-bill-alt"></i>Retirar</a>				<a href="deposit.php"><i class="fas fa-money-bill-alt"></i>Deposito</a>
+				<a href="withdraw.php"><i class="far fa-money-bill-alt"></i>Retirar</a>
+				<a href="deposit.php"><i class="fas fa-money-bill-alt"></i>Deposito</a>
                 <a href="profile.php"><i class="fas fa-user-circle"></i>Perfil</a>
 				<a href="logout.php"><i class="fas fa-sign-out-alt"></i>Terminar Sessão</a>
 			</div>
 		</nav>
 		<div class="content">
-			<h2 >Pagina Perfil</h2>
+			<h2 >Editar Nome de Utilizador</h2>
 			<?php
-                if(!empty($_SESSION['success'])) {
+				if(!empty($_SESSION['success']))
+				{
 					echo '<div class="alert alert-success" role="alert">'. $_SESSION['success'] . '</div>';
 					unset($_SESSION['success']);
 				}
-				else if(!empty($_SESSION['error'])) {
+				else if(!empty($_SESSION['error']))
+				{
 					echo '<div class="alert alert-danger" role="alert">'. $_SESSION['error'] . '</div>';
 					unset($_SESSION['error']);
 				}
-                ?>
+			?>
 			<div class="card-text bg-dark text-white">
-				<p>Detalhes da conta:</p>
-				<table>
-					<tr>
-						<td>Username:</td>
-						<td><?=$_SESSION['name']?></td>
-						<td><a href="/change-username.php">Editar</a></td>
-					</tr>
-					<tr>
-						<td>Password:</td>
-						<td><?php 
-						$chars = str_split($_SESSION['name']);
-						foreach($chars as $char){
-							echo '**';
-						}
-						?></td>
-						<td><a href="/change-password.php">Editar</a></td>
-					</tr>
-					<tr>
-						<td>Email:</td>
-						<td><?=$email?></td>
-					</tr>
-				</table>
+				<form action="change.php" method="post">
+					<fieldset disabled>	
+						<label for="none">
+							<h6>Nome de utilizador Antigo:</h6>
+						</label>
+						<!-- <br> -->
+                    	<input name="none" placeholder="" id="value" value='<?php echo $_SESSION['name']?>' required class="form-label">
+					</fieldset>
+					<!-- <br> -->
+					<label for="username">
+						<h6>Nome de utilizador Novo:</h6>
+					</label>
+					<!-- <br> -->
+                    <input type="text" name="username" placeholder="Nome de utilizador novo" id="username" required class="form-label">
+					<input type="hidden" id="changetype" name="changetype" value="username">
+					<br>
+					<button type="submit" class="btn btn-primary">Trocar Nome de utilizador</button>
+                </form>
 			</div>
 		</div>
 	</body>

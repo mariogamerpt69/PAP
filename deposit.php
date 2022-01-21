@@ -1,19 +1,11 @@
 <?php
+// We need to use sessions, so you should always start sessions using the below code.
 session_start();
-
+// If the user is not logged in redirect to the login page...
 if (!isset($_SESSION['loggedin'])) {
 	header('Location: login.php');
 	exit;
 }
-
-require_once('db.php');
-
-$stmt = $con->prepare('SELECT password, email FROM accounts WHERE id = ?');
-$stmt->bind_param('i', $_SESSION['id']);
-$stmt->execute();
-$stmt->bind_result($password, $email);
-$stmt->fetch();
-$stmt->close();
 ?>
 <!DOCTYPE html>
 <html>
@@ -25,7 +17,7 @@ $stmt->close();
 		<link href="css/style.css" rel="stylesheet" type="text/css">
 	</head>
 	<body class="loggedin">
-		<nav class="navtop">
+	<nav class="navtop">
 			<div>
 				<h1><a href="index.php"><i class="fas fa-home"></i>CrytpoScam</a></h1>
 				<a href="buy.php"><i class="fab fa-bitcoin"></i></i>Comprar</a>
@@ -35,8 +27,9 @@ $stmt->close();
 			</div>
 		</nav>
 		<div class="content">
-			<h2 >Pagina Perfil</h2>
-			<?php
+			<h2>Bem vindo de volta, <?=$_SESSION['name']?>!</h2>
+            <h1>Deposito</h1>
+                <?php
                 if(!empty($_SESSION['success'])) {
 					echo '<div class="alert alert-success" role="alert">'. $_SESSION['success'] . '</div>';
 					unset($_SESSION['success']);
@@ -46,30 +39,26 @@ $stmt->close();
 					unset($_SESSION['error']);
 				}
                 ?>
-			<div class="card-text bg-dark text-white">
-				<p>Detalhes da conta:</p>
-				<table>
-					<tr>
-						<td>Username:</td>
-						<td><?=$_SESSION['name']?></td>
-						<td><a href="/change-username.php">Editar</a></td>
-					</tr>
-					<tr>
-						<td>Password:</td>
-						<td><?php 
-						$chars = str_split($_SESSION['name']);
-						foreach($chars as $char){
-							echo '**';
-						}
-						?></td>
-						<td><a href="/change-password.php">Editar</a></td>
-					</tr>
-					<tr>
-						<td>Email:</td>
-						<td><?=$email?></td>
-					</tr>
-				</table>
-			</div>
+                <div class="card-group bg-dark text-white"> 
+                <form action="confirmdep.php" method="post">
+                    <label for="value">
+                        <h6>Valor <i class="fas fa-dollar-sign"></i></h6>
+                    </label>
+                    <br>
+                    <input type="number" name="value" placeholder="Valor (minimo 10$USD)" id="value" required min="1" class="form-label">
+                    <br>
+                    <br>
+                    <label for="depmethod">Selecione um metodo de pagamento:</label>
+                    <select class="form-select" id="depmethod" name="depmethod">
+                        <option selected value="mbway">MBWay</option>
+                        <option value="card">Cartão Visa/Mastercard</option>
+                        <option value="gpay">Google Pay</option>
+                        <option value="paypal">Paypal</option>
+                    </select>
+                    <br>
+                    <button type="submit" class="btn btn-primary">Depositar</button>
+                </form>
+            </div>
 		</div>
 	</body>
 </html>
