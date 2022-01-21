@@ -35,7 +35,9 @@ $stmt->close();
 			</div>
 		</nav>
 		<div class="content">
-			<h2 >Editar Nome de Utilizador</h2>
+		<h2>Pagina Perfil</h2>
+	
+		<p class="card-text bg-dark text-white">Editar Nome de Utilizador</p>
 			<?php
 				if(!empty($_SESSION['success']))
 				{

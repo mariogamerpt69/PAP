@@ -1,27 +1,33 @@
 <?php
 session_start();
+
+if (!isset($_SESSION['loggedin'])) {
+	header('Location: login.php');
+	exit;
+}
+
 include_once('db.php');
+
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if(empty($_POST['value'])) {
-        $_SESSION['depositerror'] = 'Por favor, insira um valor.';
+    if(empty($_SESSION['value'])) {
+        $_SESSION['error'] = 'Por favor, insira um valor.';
         header('Location: deposit.php');
         exit;
-    }
-    else if(empty($_POST['depmethod'])) {
-        $_SESSION['depositerror'] = 'Por favor, selecione um metodo de pagamento.';
+    } else if(empty($_SESSION['depmethod'])) {
+        $_SESSION['error'] = 'Por favor, selecione um metodo de pagamento.';
         header('Location: deposit.php');
         exit;
-    }
-    else if($_POST['value'] < 10) {
-        $_SESSION['depositerror'] = "O valor minimo é 10.";
+    } else if($_SESSION['value'] < 10) {
+        $_SESSION['error'] = "O valor minimo é 10.";
         header('Location: deposit.php');
         exit;
-    }
-    else {
-        $value = $_POST['value'];
-        $depmethod = $_POST['depmethod'];
+    } else {
+        $value = $_SESSION['value'];
+        unset($_SESSION['value']);
+        $depmethod = $_SESSION['depmethod'];
+        unset($_SESSION['depmethod']);
         $userid = $_SESSION['id'];
-        $sql = "INSERT INTO `deposits` (`userid`, `value`, `depmethod`) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO `deposits` (`userid`, `value`, `method`) VALUES (?, ?, ?)";
         $stmt3 = $con->prepare($sql);
         $stmt3->bind_param('iis', $userid, $value, $depmethod);
         $stmt3->execute();
@@ -35,13 +41,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['success'] = 'Deposito efetuado com sucesso!';
             header('Location: deposit.php');
             exit;
-        }
-        else {
+        } else {
             $_SESSION['error'] = 'Erro ao efetuar deposito.';
             header('Location: deposit.php');
             exit;
         }
     }
+} else {
+    header('Location: index.php');
+    exit;
 }
 
 ?>

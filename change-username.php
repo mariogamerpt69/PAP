@@ -36,7 +36,8 @@ $stmt->close();
 			</div>
 		</nav>
 		<div class="content">
-			<h2 >Editar Nome de Utilizador</h2>
+			<h2>Pagina Perfil</h2>
+			<p class="card-text bg-dark text-white">Editar Nome de Utilizador</p>
 			<?php
 				if(!empty($_SESSION['success']))
 				{
@@ -56,14 +57,14 @@ $stmt->close();
 							<h6>Nome de utilizador Antigo:</h6>
 						</label>
 						<!-- <br> -->
-                    	<input name="none" placeholder="" id="value" value='<?php echo $_SESSION['name']?>' required class="form-label">
+                    	<input class="form-control" name="none" placeholder="" id="value" value='<?php echo $_SESSION['name']?>' required class="form-label">
 					</fieldset>
 					<!-- <br> -->
 					<label for="username">
 						<h6>Nome de utilizador Novo:</h6>
 					</label>
 					<!-- <br> -->
-                    <input type="text" name="username" placeholder="Nome de utilizador novo" id="username" required class="form-label">
+                    <input class="form-control" type="text" name="username" placeholder="Nome de utilizador novo" id="username" required class="form-label">
 					<input type="hidden" id="changetype" name="changetype" value="username">
 					<br>
 					<button type="submit" class="btn btn-primary">Trocar Nome de utilizador</button>

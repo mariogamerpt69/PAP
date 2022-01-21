@@ -35,7 +35,7 @@ $stmt->close();
 			</div>
 		</nav>
 		<div class="content">
-			<h2 >Pagina Perfil</h2>
+			<h2>Pagina Perfil</h2>
 			<?php
                 if(!empty($_SESSION['success'])) {
 					echo '<div class="alert alert-success" role="alert">'. $_SESSION['success'] . '</div>';
@@ -46,8 +46,10 @@ $stmt->close();
 					unset($_SESSION['error']);
 				}
                 ?>
+			<p class="card-text bg-dark text-white">Detalhes da conta</p>
 			<div class="card-text bg-dark text-white">
-				<p>Detalhes da conta:</p>
+	
+			<!-- <p>Detalhes da conta:</p> -->
 				<table>
 					<tr>
 						<td>Username:</td>
