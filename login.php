@@ -9,23 +9,22 @@ if(isset($_SESSION['loggedin'])) {
 }
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
-	if(empty($_POST['username'])) {
-		$error = "Insira um nome de utilizador";
-	} else if(empty($_POST['password'])) {
-		$error = "Insira uma palavra-passe";
+	if (!isset($_POST['username'], $_POST['password'])) {
+		$error = "Insira todos os dados";
 	} else {
 		require_once('config.php');
 
-		if($stmt = con->prepare('SELECT id, password, perm FROM users where username = ?')) {
+		if($stmt = $con->prepare('SELECT id, password, perm FROM users where username = ?')) {
 			$stmt->bind_param('s', $_POST['username']);
 			$stmt->execute();
-			$stmt->bind_result($id, $password_hash, $perm);
-			$sheeesh = $stmt->rowCount();
-			if($sheeesh == 1) {
+			$stmt->store_result();
+			if($stmt->num_rows > 0) {
+				$stmt->bind_result($id, $password_hash, $perm);
+				$stmt->fetch();
 				if(password_verify($_POST['password'], $password_hash)) {
 					session_regenerate_id();
 					$_SESSION['loggedin'] = TRUE;
-					$_SESSION['name'] = $_POST['username'];
+					$_SESSION['username'] = $_POST['username'];
 					$_SESSION['id'] = $id;
 					$_SESSION['perm'] = $perm;
 					header('location: /');
@@ -35,6 +34,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 			} else {
 				$error = "O Nome de Utilizador inserido não existe";
 			}
+			$stmt->close();
 		} else {
 			$error = "Erro de SQL, Contacte o Administrador!!";
 		}
@@ -76,12 +76,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		      		<span class="fa fa-user-o"></span>
 		      	</div>
 		      	<h3 class="text-center mb-4">Insere os dados de login</h3>
-						<form action="login.php" method="post" class="login-form">
+						<form action="/login.php" method="post" class="login-form">
 		      		<div class="form-group">
-		      			<input type="text" class="form-control rounded-left" id="username" placeholder="Username" required>
+		      			<input type="text" class="form-control rounded-left" name="username" id="username" placeholder="Username" required>
 		      		</div>
 	            <div class="form-group d-flex">
-	              <input type="password" class="form-control rounded-left" id="password" placeholder="Password" required>
+	              <input type="password" class="form-control rounded-left" name="password" id="password" placeholder="Password" required>
 	            </div>
 	            <div class="form-group d-md-flex">
 					<div class="w-50 text-md-right">
