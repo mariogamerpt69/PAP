@@ -83,6 +83,8 @@
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="material.php">Ver Material</a>
                                     <a class="nav-link" href="material.php?action=add">Adicionar Material</a>
+                                    <a class="nav-link" href="pcs.php">Ver Computadores</a>
+                                    <a class="nav-link" href="pcs.php?action=add">Adicionar Computadores</a>
                                 </nav>
                             </div>
                             <div class="sb-sidenav-menu-heading">Administração</div>
@@ -125,36 +127,21 @@
                         if($action == "Adicionar Salas") {
                             echo '<div class="card-text bg-dark text-white">
                                 <form action="/usermanagement.php" method="POST">
-                                    <label for="name" class="form-label">Nome: </label>
-                                    <input type="text" name="name" placeholder="Nome" id="name" required class="form-control w-25">
+                                    <label for="number" class="form-label">Nome: </label>
+                                    <input type="text" name="number" placeholder="Numero" id="number" required class="form-control w-25">
                                     <br>
-                                    <label for="username" class="form-label">Nome de Utilizador: </label>
-                                    <input type="text" name="username" placeholder="Nome de Utilizador" id="username" required class="form-control w-25">
-                                    <br>
-                                    <label for="mail" class="form-label">Email: </label>
-                                    <input type="text" name="mail" placeholder="Email" id="mail" required class="form-control w-25">
-                                    <br>
-                                    <label for="username" class="form-label">Password: </label>
-                                    <input type="password" name="password" placeholder="Password" id="password" required class="form-control w-25">
-                                    <br>
-                                    <label for="perm" class="form-label">Permições: </label>
-                                    <select class="form-select w-25" id="perm" name="perm">
+                                    <label for="pav" class="form-label">Pavilhão: </label>
+                                    <select class="form-select w-25" id="pav" name="pav">
                                     ';
 
                             include_once('config.php');
                             
-                            if($stmt = $con->prepare('SELECT perm_id, type, name FROM permissions;')) {
+                            if($stmt = $con->prepare('SELECT id, pavilhao FROM pavilhoes;')) {
                                 $stmt->execute();
                                 $stmt->store_result();
-                                $stmt->bind_result($perm_id, $type, $name);
+                                $stmt->bind_result($id, $pav);
                                 while($stmt->fetch()) {
-                                    if ($perm_id == "user")
-                                    {
-                                        echo '<option class="form-control w-25" value="' . $perm_id . '"selected>' . $name . '</option>';
-
-                                    } else {
-                                        echo '<option class="form-control w-25" value="' . $perm_id . '">' . $name . '</option>';
-                                    }
+                                    echo '<option class="form-control w-25" value="' . $id . '">' . $pav . '</option>';
                                 }
                             }
 

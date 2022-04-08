@@ -83,6 +83,8 @@
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="material.php">Ver Material</a>
                                     <a class="nav-link" href="material.php?action=add">Adicionar Material</a>
+                                    <a class="nav-link" href="pcs.php">Ver Computadores</a>
+                                    <a class="nav-link" href="pcs.php?action=add">Adicionar Computadores</a>
                                 </nav>
                             </div>
                             <div class="sb-sidenav-menu-heading">Administração</div>
@@ -125,8 +127,8 @@
                         if($action == "Adicionar Pavilhões") {
                             echo '<div class="card-text bg-dark text-white">
                                 <form action="/pavman.php" method="POST">
-                                    <label for="name" class="form-label">Nome: </label>
-                                    <input type="text" name="name" placeholder="Nome" id="name" required class="form-control w-25">
+                                    <label for="nombre" class="form-label">Nome: </label>
+                                    <input type="text" name="nombre" placeholder="Nome" id="nombre" required class="form-control w-25">
                                     <br>
                                     <input type="hidden" name="type" value="add">
                                     <button type="submit" class="btn btn-primary">Adicionar Pavilhão</button>
@@ -158,21 +160,21 @@
                                 $stmt->store_result();
                                 $stmt->bind_result($id, $pav);
                                 while($stmt->fetch()) {
-                                    echo '<tr>';
-                                    echo "<td>". $id ."</td>";
-                                    echo "<td>". $pav ."</td>";
+                                    echo '<tr>
+                                    <td>'. $id .'</td>
+                                    <td>'. $pav .'</td>';
                                     if($_SESSION['perm'] == "superadmin" || $_SESSION['perm'] == "owner") {
                                         $sheesh = "'";
                                         echo '<td><button class="btn btn-danger" onclick="postModal(' . $id . ',' . $sheesh . $pav . $sheesh .')"><i class="fa-solid fa-x"></i> Remover</button></td>';
                                     } else {
                                         echo '<td><button class="btn btn-danger disabled" role="button" aria-disabled="true"><i class="fa-solid fa-x"></i> Remover</button></td>';
                                     }
-                                    echo "</tr>";
+                                    echo '</tr>';
                                 }
-                                echo "</tbody>
+                                echo '</tbody>
                                 </table>
                                 </div>
-                                </div>";
+                                </div>';
                             }
                         }
                         ?>

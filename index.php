@@ -79,11 +79,15 @@
                                     <?php
                                     if(isset($_SESSION['loggedin'])) {
                                         echo '<a class="nav-link" href="material.php">Ver Material</a>
-                                        <a class="nav-link" href="material.php?action=add">Adicionar Material</a>';
+                                        <a class="nav-link" href="material.php?action=add">Adicionar Material</a>
+                                        <a class="nav-link" href="pcs.php">Ver Computadores</a>
+                                        <a class="nav-link" href="pcs.php?action=add">Adicionar Computadores</a>';
                                     } else {
                                         $s = "'";
                                         echo '<a class="nav-link" href="#" onclick="alertas()">Ver Material</a>
-                                        <a class="nav-link" href="#" onclick="alertas()">Adicionar Material</a>'; 
+                                        <a class="nav-link" href="#" onclick="alertas()">Adicionar Material</a>
+                                        <a class="nav-link" href="#" onclick="alertas()">Ver Computadores</a>
+                                        <a class="nav-link" href="#" onclick="alertas()">Adicionar Computadores</a>'; 
                                     }
                                     ?>
                                 </nav>

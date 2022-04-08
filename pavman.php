@@ -33,17 +33,18 @@ if($_POST['type'] == "add") {
 
 function add() {
     if($_SERVER["REQUEST_METHOD"] == "POST") {
-        if(!isset($_POST["name"])) {
+        if(isset($_POST["nombre"])) {
             include_once('config.php');
-            if($stmt = $con->prepare("SELECT 1 FROM pavilhoes WHERE pavilhão = ?")) {+
-                $stmt->bind_param('s', $_POST["name"]);
+            if($stmt = $con->prepare("SELECT 1 FROM pavilhoes WHERE pavilhao = ?")) {+
+                $stmt->bind_param('s', $_POST["nombre"]);
                 $stmt->execute();
                 $stmt->store_result();
                 if($stmt->num_rows == 0) {
                     if($insert = $con->prepare("INSERT INTO `pavilhoes` (`pavilhao`) VALUES (?)")) {
-                        $insert->bind_param('s', $_POST['name']);
+                        $insert->bind_param('s', $_POST['nombre']);
                         $insert->execute();
                         $insert->close();
+                        header("location: /pav.php");
                     } else {
                         $_SESSION['title'] = "Adicionar Pavilhão";
                         $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";

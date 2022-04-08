@@ -117,6 +117,8 @@
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="material.php">Ver Material</a>
                                     <a class="nav-link" href="material.php?action=add">Adicionar Material</a>
+                                    <a class="nav-link" href="pcs.php">Ver Computadores</a>
+                                    <a class="nav-link" href="pcs.php?action=add">Adicionar Computadores</a>
                                 </nav>
                             </div>
                             <div class="sb-sidenav-menu-heading">Administração</div>
@@ -205,8 +207,8 @@
                                         <tr>
                                             <th>ID</th>
                                             <th>Nome De Utilizador</th>
-                                            <th>email</th>
-                                            <th>Permição</th>
+                                            <th>Email</th>
+                                            <th>Permissão</th>
                                             <th>Ações</th>
                                         </tr>
                                     </thead>
@@ -214,8 +216,8 @@
                                         <tr>
                                             <th>ID</th>
                                             <th>Nome De Utilizador</th>
-                                            <th>email</th>
-                                            <th>Permição</th>
+                                            <th>Email</th>
+                                            <th>Permissão</th>
                                             <th>Ações</th>
                                         </tr>
                                     </tfoot>

@@ -119,6 +119,8 @@
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="material.php">Ver Material</a>
                                     <a class="nav-link" href="material.php?action=add">Adicionar Material</a>
+                                    <a class="nav-link" href="pcs.php">Ver Computadores</a>
+                                    <a class="nav-link" href="pcs.php?action=add">Adicionar Computadores</a>
                                 </nav>
                             </div>
                             <div class="sb-sidenav-menu-heading">Administração</div>
@@ -211,7 +213,7 @@
                                             <th>Tipo</th>
                                             <th>Pavilhão</th>
                                             <th>Sala</th>
-                                            <th>Em Uso?</th>
+                                            <th>Computador</th>
                                             <th>Ações</th>
                                         </tr>
                                     </thead>
@@ -222,23 +224,25 @@
                                             <th>Tipo</th>
                                             <th>Pavilhão</th>
                                             <th>Sala</th>
-                                            <th>Em Uso?</th>
+                                            <th>Computador</th>
                                             <th>Ações</th>
                                         </tr>
                                     </tfoot>
                                     <tbody>';
 
-                            if($stmt = $con->prepare('SELECT id, name, username, email, perm FROM users')) {
+                            if($stmt = $con->prepare('SELECT material.id, name, type.type, pavilhoes.pavilhao, classroom.numero, computerid FROM material INNER JOIN type ON type.id = material.type INNER JOIN pavilhoes ON pavilhoes.id = material.pav INNER JOIN classroom ON classroom.id = material.room;')) {
                                 $stmt->execute();
                                 $stmt->store_result();
-                                $stmt->bind_result($id, $name, $username, $email, $perm);
+                                $stmt->bind_result($id, $name, $type, $pav, $room, $computer);
                                 while($stmt->fetch()) {
-                                    echo "<td>". $id ."</td>";
-                                    echo "<td>". $name ."</td>";
-                                    echo "<td>". $username ."</td>";
-                                    echo "<td>". $email ."</td>";
-                                    
-                                    echo "</tr>";
+                                    echo "<tr>
+                                    <td>". $id ."</td>
+                                    <td>". $name ."</td>
+                                    <td>". $type ."</td>
+                                    <td>". $pav ."</td>
+                                    <td>". $room ."</td>
+                                    <td>". $computer ."</td>
+                                    </tr>";
                                 }
                                 echo "</tbody>
                                 </table>
