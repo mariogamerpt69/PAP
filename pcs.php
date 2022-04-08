@@ -4,17 +4,17 @@
         header('location: /');
         exit;
     }
-    $action = "Ver Material";
+    $action = "Ver Computadores";
     $error = "";
     $jserror = "";
     $success = false;
     if(isset($_GET["action"])) {
         if($_GET["action"] == "see") {
-            $action = "Ver Material";
+            $action = "Ver Computadores";
         } elseif($_GET["action"] == "add") {
-            $action = "Adicionar Material";
+            $action = "Adicionar Computadores";
         } else {
-            $action = "Ver Material";
+            $action = "Ver Computadores";
         }
     }
     include_once('config.php');
@@ -153,14 +153,14 @@
             <div id="layoutSidenav_content" class="content bg-dark text-white">
                 <main>
                     <div class="container-fluid px-4">
-                        <h1 class="mt-4">Gestão de Material</h1>
+                        <h1 class="mt-4">Gestão de Computadores</h1>
                         <ol class="breadcrumb mb-4">
                             <li class="breadcrumb-item active"><?php echo $action ?></li>
                         </ol>
                     </div>
                     <div class="content bg-dark text-white">
                         <?php
-                        if($action == "Adicionar Material") {
+                        if($action == "Adicionar Computadores") {
                             echo '<div class="card-text bg-dark text-white">
                                 <form action="/usermanagement.php" method="POST">
                                     <label for="username" class="form-label">Nome de Utilizador: </label>
@@ -177,21 +177,6 @@
                                     ';
 
                             include_once('config.php');
-                            
-                            if($stmt = $con->prepare('SELECT perm_id, type, name FROM permissions;')) {
-                                $stmt->execute();
-                                $stmt->store_result();
-                                $stmt->bind_result($perm_id, $type, $name);
-                                while($stmt->fetch()) {
-                                    if ($perm_id == "user")
-                                    {
-                                        echo '<option class="form-control w-25" value="' . $perm_id . '"selected>' . $name . '</option>';
-
-                                    } else {
-                                        echo '<option class="form-control w-25" value="' . $perm_id . '">' . $name . '</option>';
-                                    }
-                                }
-                            }
 
                             echo   '</select>
                                     <br>
@@ -201,7 +186,7 @@
                                 <br>
                                 <button class="btn btn-primary" onclick="securepwd()">Gerar Password Segura</button>
                             </div>';
-                        } elseif($action == "Ver Material") {
+                        } elseif($action == "Ver Computadores") {
                             include_once('config.php');
                             echo '<div class="card mb-4 text-dark">
                             <div class="card-body">
@@ -209,23 +194,15 @@
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>Nome</th>
-                                            <th>Tipo</th>
-                                            <th>Pavilhão</th>
+                                            <th>Identificador</th>
                                             <th>Sala</th>
-                                            <th>Em Uso?</th>
-                                            <th>Ações</th>
                                         </tr>
                                     </thead>
                                     <tfoot>
                                         <tr>
                                             <th>ID</th>
-                                            <th>Nome</th>
-                                            <th>Tipo</th>
-                                            <th>Pavilhão</th>
+                                            <th>Identificador</th>
                                             <th>Sala</th>
-                                            <th>Em Uso?</th>
-                                            <th>Ações</th>
                                         </tr>
                                     </tfoot>
                                     <tbody>';
@@ -233,22 +210,20 @@
                             if($stmt = $con->prepare('SELECT id, identifier, classroom FROM computers;')) {
                                 $stmt->execute();
                                 $stmt->store_result();
-                                $stmt->bind_result($id, $name, $type, $pav, $room, $computer);
+                                $stmt->bind_result($id, $identifier, $classroom);
                                 while($stmt->fetch()) {
                                     echo "<tr>
                                     <td>". $id ."</td>
-                                    <td>". $name ."</td>
-                                    <td>". $type ."</td>
-                                    <td>". $pav ."</td>
-                                    <td>". $room ."</td>
-                                    <td>". $computer ."</td>
+                                    <td>". $identifier ."</td>
+                                    <td>". $classroom ."</td>
                                     </tr>";
                                 }
-                                echo "</tbody>
+                            }
+
+                            echo "</tbody>
                                 </table>
                                 </div>
                                 </div>";
-                            }
                         }
                         ?>
                     </div>

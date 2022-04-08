@@ -319,12 +319,12 @@
                                     }
                                     echo "</tr>";
                                 }
-                                echo "</tbody>
+                                $stmt->close();
+                            }
+                            echo "</tbody>
                                 </table>
                                 </div>
                                 </div>";
-                                $stmt->close();
-                            }
                         }
                         ?>
                     </div>

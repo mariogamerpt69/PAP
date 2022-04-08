@@ -244,11 +244,11 @@
                                     <td>". $computer ."</td>
                                     </tr>";
                                 }
-                                echo "</tbody>
+                            }
+                            echo "</tbody>
                                 </table>
                                 </div>
                                 </div>";
-                            }
                         }
                         ?>
                     </div>
