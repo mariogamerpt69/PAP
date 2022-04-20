@@ -5,9 +5,6 @@
         exit;
     }
     $action = "Ver Computadores";
-    $error = "";
-    $jserror = "";
-    $success = false;
     if(isset($_GET["action"])) {
         if($_GET["action"] == "see") {
             $action = "Ver Computadores";
@@ -17,44 +14,6 @@
             $action = "Ver Computadores";
         }
     }
-    include_once('config.php');
-    if($_SERVER["REQUEST_METHOD"] == "POST") {
-        if(isset($_POST["username"], $_POST["password"], $_POST["mail"])) {
-            if($stmt = $con->prepare("SELECT 1 FROM users WHERE username = ? OR email = ?")) {
-                $stmt->bind_param('ss', $_POST["username"], $_POST["mail"]);
-                $stmt->execute();
-                $stmt->store_result();
-                if($stmt->num_rows == 0) {
-                    $username = $_POST['username'];
-                    $password = $_POST['password'];
-                    $email = $_POST['mail'];
-                    $password_hash = password_hash($password, PASSWORD_DEFAULT);
-                    if($insert = $con->prepare("INSERT INTO `users` (`username`, `password`, `email`) VALUES (?, ?, ?)")) {
-                        $insert->bind_param('sss', $username, $password_hash, $email);
-                        $insert->execute();
-                        $insert->close();
-                        $success = true;
-                    } else {
-                        $error = "Erro na base de dados, Contacte um administrador para mais informações";
-                        $jserror = "SQL2";
-                    }
-                    $stmt->close();
-                } else {
-                    $error = "Já existe alguem com esse nome de utilizador ou email";
-                    $jserror = "same username or mail";
-                }
-            } else {
-                $error = "Erro na base de dados, Contacte um administrador para mais informações";
-                $jserror = "SQL1";
-            }
-        } else {
-            $error = "Insira todos os valores";
-            $jserror = "values";
-        }
-    } else {
-
-    }
-
 ?>
 <!DOCTYPE html>
 <html lang="pt-PT">
@@ -162,29 +121,26 @@
                         <?php
                         if($action == "Adicionar Computadores") {
                             echo '<div class="card-text bg-dark text-white">
-                                <form action="/usermanagement.php" method="POST">
-                                    <label for="username" class="form-label">Nome de Utilizador: </label>
-                                    <input type="text" name="username" placeholder="Nome de Utilizador" id="username" required class="form-control w-25">
+                                <form action="/pc.php" method="POST">
+                                    <label for="identifier" class="form-label">Identificador: </label>
+                                    <input type="text" name="identifier" placeholder="Identificador" id="identifier" required class="form-control w-25">
                                     <br>
-                                    <label for="mail" class="form-label">Email: </label>
-                                    <input type="text" name="mail" placeholder="Email" id="mail" required class="form-control w-25">
-                                    <br>
-                                    <label for="username" class="form-label">Password: </label>
-                                    <input type="password" name="password" placeholder="Password" id="password" required class="form-control w-25">
-                                    <br>
-                                    <label for="perm" class="form-label">Permições: </label>
-                                    <select class="form-select w-25" id="perm" name="perm">
+                                    <label for="room" class="form-label">Sala: </label>
+                                    <select class="form-select w-25" id="room" name="room">
                                     ';
-
                             include_once('config.php');
-
+                            if($stmt = $con->prepare("SELECT id, numero FROM classroom;")) {
+                                $stmt->execute();
+                                $stmt->bind_result($id, $numero);
+                                while($stmt->fetch()) {
+                                    echo '<option value="'.$id.'">'.$numero.'</option>';
+                                }
+                            }
                             echo   '</select>
                                     <br>
                                     <input type="hidden" name="type" value="add">
-                                    <button type="submit" class="btn btn-primary">Criar Conta</button>
+                                    <button type="submit" class="btn btn-primary">Criar Computador</button>
                                 </form>
-                                <br>
-                                <button class="btn btn-primary" onclick="securepwd()">Gerar Password Segura</button>
                             </div>';
                         } elseif($action == "Ver Computadores") {
                             include_once('config.php');
@@ -196,6 +152,7 @@
                                             <th>ID</th>
                                             <th>Identificador</th>
                                             <th>Sala</th>
+                                            <th>Ações</th>
                                         </tr>
                                     </thead>
                                     <tfoot>
@@ -203,23 +160,27 @@
                                             <th>ID</th>
                                             <th>Identificador</th>
                                             <th>Sala</th>
+                                            <th>Ações</th>
                                         </tr>
                                     </tfoot>
                                     <tbody>';
 
-                            if($stmt = $con->prepare('SELECT id, identifier, classroom FROM computers;')) {
+                            if($stmt = $con->prepare('SELECT computers.id, computers.identifier, classroom.numero FROM computers INNER JOIN classroom on computers.room = classroom.id;')) {
                                 $stmt->execute();
                                 $stmt->store_result();
                                 $stmt->bind_result($id, $identifier, $classroom);
                                 while($stmt->fetch()) {
+                                    $sheesh = '"';
+                                    $link = '"/computer.php?id=' . $id . '"';
                                     echo "<tr>
                                     <td>". $id ."</td>
                                     <td>". $identifier ."</td>
                                     <td>". $classroom ."</td>
+                                    <td><button class='btn btn-danger' onclick= $sheesh alert('relou')$sheesh><i class='fa-solid fa-x'></i> Remover</button>
+                                    <button class='btn btn-primary' onclick='location.replace($link)'><i class='fa-solid fa-eye'></i> Ver Material</button></td>
                                     </tr>";
                                 }
                             }
-
                             echo "</tbody>
                                 </table>
                                 </div>
@@ -249,6 +210,21 @@
                 if (datatablesSimple) {
                     new simpleDatatables.DataTable(datatablesSimple);
                 }
+            });
+
+            $(document).ready(function() {
+                let a = 0;
+                <?php
+                if(isset($_SESSION['error'])) {
+                    if(!isset($_SESSION['title'])) {
+                        echo 'show1btnModal("Alerta", "' . $_SESSION['error'] . '", "Fechar")';
+                    } else {
+                        echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['error'] . '", "Fechar")';
+                    }
+                    $_SESSION['error'] = null;
+                    $_SESSION['title'] = null;
+                }
+                ?>
             });
         </script>
     </body>

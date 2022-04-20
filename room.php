@@ -151,30 +151,6 @@
                                     <button type="submit" class="btn btn-primary">Criar Conta</button>
                                 </form>
                             </div>';
-                        } elseif($action == "Remover Salas") {
-                            echo '<div class="card-text bg-dark text-white">
-                            <form action="/user.php" method="POST">
-                            <label for="userid" class="form-label">Utilizador: </label>
-                            <select class="form-select w-25" id="id" name="id">';
-
-                            include_once('config.php');
-
-                            if($stmt = $con->prepare('SELECT classroom.id, pavilhoes.pavilhao, numero FROM classroom INNER JOIN pavilhoes ON classroom. ORDER BY id ASC;')) {
-                                $stmt->execute();
-                                $stmt->store_result();
-                                $stmt->bind_result($id, $pav, $num);
-                                while($stmt->fetch()) {
-                                    echo '<option class="form-control w-25" value="' . $id . '">' . $name . '</option>';
-                                }
-                            }
-
-                            echo   '</select>
-                                    <br>
-                                        <button type="submit" class="btn btn-primary">Remover Utilizador</button>
-                                </form>
-                            </div>';
-
-
                         } elseif($action == "Ver Salas") {
                             include_once('config.php');
                             echo '<div class="card mb-4 text-dark">
@@ -244,6 +220,22 @@
                 if (datatablesSimple) {
                     new simpleDatatables.DataTable(datatablesSimple);
                 }
+            });
+        </script>
+        <script>
+            $(document).ready(function() {
+                let a = 0;
+                <?php
+                if(isset($_SESSION['error'])) {
+                    if(!isset($_SESSION['title'])) {
+                        echo 'show1btnModal("Alerta", "' . $_SESSION['error'] . '", "Fechar")';
+                    } else {
+                        echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['error'] . '", "Fechar")';
+                    }
+                    $_SESSION['error'] = null;
+                    $_SESSION['title'] = null;
+                }
+                ?>
             });
         </script>
     </body>

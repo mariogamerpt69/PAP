@@ -33,7 +33,7 @@ if($_POST['type'] == "add") {
 
 function add() {
     if($_SERVER["REQUEST_METHOD"] == "POST") {
-        if(!isset($_POST["username"], $_POST["password"], $_POST["mail"], $_POST["perm"])) {
+        if(isset($_POST["username"], $_POST["password"], $_POST["mail"], $_POST["perm"])) {
             include_once('config.php');
             if($stmt = $con->prepare("SELECT 1 FROM users WHERE username = ? OR email = ?")) {+
                 $stmt->bind_param('ss', $_POST["username"], $_POST["mail"]);
@@ -42,9 +42,10 @@ function add() {
                 if($stmt->num_rows == 0) {
                     $password_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
                     if($insert = $con->prepare("INSERT INTO `users` (`username`, `password`, `email`, `perm`) VALUES (?, ?, ?, ?)")) {
-                        $insert->bind_param('ssss', $_POST['username'], $password_hash, $_POST['email'], $_POST['perm']);
+                        $insert->bind_param('ssss', $_POST['username'], $password_hash, $_POST['mail'], $_POST['perm']);
                         $insert->execute();
                         $insert->close();
+                        header("location: /usermanagement.php");
                     } else {
                         $_SESSION['title'] = "Criar Utilizador";
                         $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";

@@ -17,42 +17,6 @@
             $action = "Ver Utilizadores";
         }
     }
-    include_once('config.php');
-    if($_SERVER["REQUEST_METHOD"] == "POST") {
-        if(isset($_POST["username"], $_POST["password"], $_POST["mail"], $_POST['perm'])) {
-            if($stmt = $con->prepare("SELECT 1 FROM users WHERE username = ? OR email = ?")) {
-                $stmt->bind_param('ss', $_POST["username"], $_POST["mail"]);
-                $stmt->execute();
-                $stmt->store_result();
-                if($stmt->num_rows == 0) {
-                    $username = $_POST['username'];
-                    $password = $_POST['password'];
-                    $email = $_POST['mail'];
-                    $perm = $_POST['perm'];
-                    $password_hash = password_hash($password, PASSWORD_DEFAULT);
-                    if($insert = $con->prepare("INSERT INTO `users` (`username`, `password`, `email`, `perm`) VALUES (?, ?, ?, ?)")) {
-                        $insert->bind_param('ssss', $username, $password_hash, $email, $perm);
-                        $insert->execute();
-                        $insert->close();
-                        $success = true;
-                    } else {
-                        $error = "Erro na base de dados, Contacte um administrador para mais informações";
-                        $jserror = "SQL2";
-                    }
-                } else {
-                    $error = "Já existe alguem com esse nome de utilizador ou email";
-                    $jserror = "same username or mail";
-                }
-                $stmt->close();
-            } else {
-                $error = "Erro na base de dados, Contacte um administrador para mais informações";
-                $jserror = "SQL1";
-            }
-        } else {
-            $error = "Insira todos os valores";
-            $jserror = "values";
-        }
-    }
 ?>
 <!DOCTYPE html>
 <html lang="pt-PT">
@@ -160,14 +124,14 @@
                         <?php
                         if($action == "Adicionar Utilizadores") {
                             echo '<div class="card-text bg-dark text-white">
-                                <form action="/usermanagement.php" method="POST">
+                                <form action="/user.php" method="POST">
                                     <label for="username" class="form-label">Nome de Utilizador: </label>
                                     <input type="text" name="username" placeholder="Nome de Utilizador" id="username" required class="form-control w-25">
                                     <br>
                                     <label for="mail" class="form-label">Email: </label>
-                                    <input type="text" name="mail" placeholder="Email" id="mail" required class="form-control w-25">
+                                    <input type="email" name="mail" placeholder="Email" id="mail" required class="form-control w-25">
                                     <br>
-                                    <label for="username" class="form-label">Password: </label>
+                                    <label for="password" class="form-label">Password: </label>
                                     <input type="password" name="password" placeholder="Password" id="password" required class="form-control w-25">
                                     <br>
                                     <label for="perm" class="form-label">Permições: </label>
@@ -198,7 +162,7 @@
                                 <br>
                                 <button class="btn btn-primary" onclick="securepwd()">Gerar Password Segura</button>
                             </div>';
-                        } elseif($action == "Ver Utilizadores") {
+                        } elseif($action == "Ver Utilizadores") { 
                             include_once('config.php');
                             echo '<div class="card mb-4 text-dark">
                             <div class="card-body">
@@ -250,7 +214,7 @@
                                                     break;
                                             }
                                             break;
-                                        case "superuser":
+                                        case "admin":
                                             echo "<td>Administrador</td>";
                                             switch($_SESSION['perm']) {
                                                 case("owner"):
@@ -376,6 +340,21 @@
                 let postdata = { "type": "rem", "id": id, "ref": window.location.href };
                 showPostModal('Remover Utilizador', `Tem a certeza que pretende remover utilizador ${name}?`, 'Remover', 'Cancelar', "/user.php", postdata, cb = function() {});
             }
+
+            $(document).ready(function() {
+                let a = 0;
+                <?php
+                if(isset($_SESSION['error'])) {
+                    if(!isset($_SESSION['title'])) {
+                        echo 'show1btnModal("Alerta", "' . $_SESSION['error'] . '", "Fechar")';
+                    } else {
+                        echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['error'] . '", "Fechar")';
+                    }
+                    $_SESSION['error'] = null;
+                    $_SESSION['title'] = null;
+                }
+                ?>
+            });
         </script>
     </body>
 </html>

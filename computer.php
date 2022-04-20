@@ -4,57 +4,6 @@
         header('location: /');
         exit;
     }
-    $action = "Ver Material";
-    $error = "";
-    $jserror = "";
-    $success = false;
-    if(isset($_GET["action"])) {
-        if($_GET["action"] == "see") {
-            $action = "Ver Material";
-        } elseif($_GET["action"] == "add") {
-            $action = "Adicionar Material";
-        } else {
-            $action = "Ver Material";
-        }
-    }
-    include_once('config.php');
-    if($_SERVER["REQUEST_METHOD"] == "POST") {
-        if(isset($_POST["username"], $_POST["password"], $_POST["mail"])) {
-            if($stmt = $con->prepare("SELECT 1 FROM users WHERE username = ? OR email = ?")) {
-                $stmt->bind_param('ss', $_POST["username"], $_POST["mail"]);
-                $stmt->execute();
-                $stmt->store_result();
-                if($stmt->num_rows == 0) {
-                    $username = $_POST['username'];
-                    $password = $_POST['password'];
-                    $email = $_POST['mail'];
-                    $password_hash = password_hash($password, PASSWORD_DEFAULT);
-                    if($insert = $con->prepare("INSERT INTO `users` (`username`, `password`, `email`) VALUES (?, ?, ?)")) {
-                        $insert->bind_param('sss', $username, $password_hash, $email);
-                        $insert->execute();
-                        $insert->close();
-                        $success = true;
-                    } else {
-                        $error = "Erro na base de dados, Contacte um administrador para mais informações";
-                        $jserror = "SQL2";
-                    }
-                    $stmt->close();
-                } else {
-                    $error = "Já existe alguem com esse nome de utilizador ou email";
-                    $jserror = "same username or mail";
-                }
-            } else {
-                $error = "Erro na base de dados, Contacte um administrador para mais informações";
-                $jserror = "SQL1";
-            }
-        } else {
-            $error = "Insira todos os valores";
-            $jserror = "values";
-        }
-    } else {
-
-    }
-
 ?>
 <!DOCTYPE html>
 <html lang="pt-PT">
@@ -153,115 +102,48 @@
             <div id="layoutSidenav_content" class="content bg-dark text-white">
                 <main>
                     <div class="container-fluid px-4">
-                        <h1 class="mt-4">Gestão de Material</h1>
+                        <h1 class="mt-4">PC</h1>
                         <ol class="breadcrumb mb-4">
-                            <li class="breadcrumb-item active"><?php echo $action ?></li>
+                            <li class="breadcrumb-item active">PC</li>
                         </ol>
                     </div>
                     <div class="content bg-dark text-white">
                         <?php
-                        if($action == "Adicionar Material") {
-                            echo '<div class="card-text bg-dark text-white">
-                                <form action="/matman.php" method="POST">
-                                    <label for="nombre" class="form-label">Nome do Material: </label>
-                                    <input type="text" name="nombre" placeholder="Nome do Material" id="nombre" required class="form-control w-25">
-                                    <br>
-                                    <label for="tipo" class="form-label">Tipo: </label>
-                                    <select class="form-select w-25" id="tipo" name="tipo">';
-
-                            include_once('config.php');
-                            
-                            if($stmt = $con->prepare('SELECT id, type FROM type;')) {
-                                $stmt->execute();
-                                $stmt->store_result();
-                                $stmt->bind_result($id, $type);
-                                while($stmt->fetch()) {
-                                    echo '<option class="form-control w-25" value="' . $id . '">' . $id . " - " . $type . '</option>';
-                                }
-                                $stmt->close();
-                            }
-                            
-                            echo   '</select>
-                                    <br>
-                                    <label for="room" class="form-label">Sala: </label>
-                                    <select class="form-select w-25" id="room" name="room">';
-
-                            if($stmt = $con->prepare('SELECT classroom.id, pavilhoes.pavilhao, numero FROM classroom INNER JOIN pavilhoes ON classroom.pavilhao = pavilhoes.id;')) {
-                                $stmt->execute();
-                                $stmt->store_result();
-                                $stmt->bind_result($id, $pav, $num);
-                                while($stmt->fetch()) {
-                                    echo '<option class="form-control w-25" value="' . $id . '">' . $pav . ' - ' . $num . '</option>';
-                                }
-                                $stmt->close();
-                            }
-
-                            echo   '</select>
-                                    <br>
-                                    <input type="hidden" name="type" value="add">
-                                    <button type="submit" class="btn btn-primary">Adicionar Material</button>
-                                </form>
-                            </div>';
-                        } elseif($action == "Ver Material") {
-                            include_once('config.php');
-                            echo '<div class="card mb-4 text-dark">
-                            <div class="card-body">
+                            if(isset($_GET['id'])) {
+                                ?>
+                                <div class="card-body bg-white text-dark">
                                 <table id="datatablesSimple">
                                     <thead>
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Nome</th>
-                                            <th>Tipo</th>
-                                            <th>Pavilhão</th>
-                                            <th>Sala</th>
-                                            <th>Computador</th>
-                                            <th>Ações</th>
+                                            <th>Componentes</th>
                                         </tr>
                                     </thead>
                                     <tfoot>
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Nome</th>
-                                            <th>Tipo</th>
-                                            <th>Pavilhão</th>
-                                            <th>Sala</th>
-                                            <th>Computador</th>
-                                            <th>Ações</th>
+                                            <th>Componentes</th>
                                         </tr>
                                     </tfoot>
-                                    <tbody>';
-
-                            if($stmt = $con->prepare('SELECT material.id, name, type.type, pavilhoes.pavilhao, classroom.numero, computerid FROM material INNER JOIN type ON type.id = material.type INNER JOIN classroom ON classroom.id = material.room INNER JOIN pavilhoes ON pavilhoes.id = classroom.pavilhao ;')) {
-                                $stmt->execute();
-                                $stmt->store_result();
-                                $stmt->bind_result($id, $name, $type, $pav, $room, $computer);
-                                while($stmt->fetch()) {
-                                    $sheesh = '"';
-                                    echo "<tr>
-                                    <td>". $id ."</td>
-                                    <td>". $name ."</td>
-                                    <td>". $type ."</td>
-                                    <td>". $pav ."</td>
-                                    <td>". $room ."</td>";
-                                    if ($computer == null) {
-                                        echo "<td>$computer</td>";
-                                    } else {
-                                        echo "<td><a href='/computer.php?id=$computer'>$computer</a></td>";
+                                    <tbody>
+                        <?php
+                                include_once('config.php');
+                                if($stmt = $con->prepare("SELECT name FROM material WHERE computerid = ?")){
+                                    $stmt->bind_param("i", $_GET['id']);
+                                    $stmt->execute();
+                                    $stmt->bind_result($name);
+                                    while($stmt->fetch()) {
+                                        echo("<tr>");
+                                        echo("<td>$name</td>");
+                                        echo("</tr>");
                                     }
-                                    echo "<td><button class='btn btn-danger' onclick='alert($sheesh relou $sheesh)'><i class='fa-solid fa-x'></i> Remover</button>";
-                                    if($computer == null) {
-                                        $link = '"/asspc.php?id=' . $id . '"';
-                                        echo " <button class='btn btn-primary' onclick='location.replace($link)'><i class='fa-solid fa-x'></i> Associar Computador</button>";
-                                    }
-                                    echo "</td>
-                                </tr>";
+                                    $stmt->close();
                                 }
+                        ?>
+                        </tbody>
+                        </table>
+                        <?php
+                            } else {
+                                header("location: /");
                             }
-                            echo "</tbody>
-                                </table>
-                                </div>
-                                </div>";
-                        }
                         ?>
                     </div>
                 </main>

@@ -207,6 +207,21 @@
                 let postdata = { "type": "rem", "id": id, "ref": window.location.href };
                 showPostModal('Remover Pavilhão', `Tem a certeza que pretende remover o Pavilhão ${name}?`, 'Remover', 'Cancelar', "/pavman.php", postdata, cb = function() {});
             }
+
+            $(document).ready(function() {
+                let a = 0;
+                <?php
+                if(isset($_SESSION['error'])) {
+                    if(!isset($_SESSION['title'])) {
+                        echo 'show1btnModal("Alerta", "' . $_SESSION['error'] . '", "Fechar")';
+                    } else {
+                        echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['error'] . '", "Fechar")';
+                    }
+                    $_SESSION['error'] = null;
+                    $_SESSION['title'] = null;
+                }
+                ?>
+            });
         </script>
     </body>
 </html>
