@@ -187,7 +187,7 @@
                             $users = $count;
                             $stmt->close();
                         }
-                        echo '<div class="container-fluid px-4 bg-dark text-white">
+                        echo '<br><div class="container-fluid px-4 bg-dark text-white">
                             <div class="card bg-dark text-white">
                                 <div class="card-group">
                                     <div class="card-body">
