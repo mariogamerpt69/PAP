@@ -24,8 +24,8 @@ if($_POST['type'] == "add") {
     add();
 } elseif($_POST['type'] == "rem") {
     remove();
-} elseif($_POST['type'] == "edit") {
-    edit();
+} elseif($_POST['type'] == "reset") {
+    resetPassword();
 } else {
     header("location: /");
     exit();
@@ -99,12 +99,12 @@ function remove() {
                             $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
                             header("location: /");
                         }
+                        $stmt->close();
                     } else {
                         $_SESSION['title'] = "Remover Utilizador";
                         $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
                         header("location: /");
                     }
-                    $stmt->close();
                 }
             } else {
                 $_SESSION['title'] = "Remover Utilizador";
@@ -121,13 +121,50 @@ function remove() {
         exit;
     }
 }
-
-function edit() {
+function resetPassword(){
     if($_SERVER["REQUEST_METHOD"] == "POST") {
-        
-    } else {
+        if(isset($_POST['id'], $_POST['passwd'])) {
+            if(is_numeric($_POST["id"])) {
+                include_once('config.php');
+                if($stmt = $con->prepare("UPDATE `users` SET password=? WHERE id = ?")) {
+                    $hashed = password_hash($_POST['passwd'], PASSWORD_DEFAULT);
+                    $stmt->bind_param('si', $hashed, $_POST['id']);
+                    $stmt->execute();
+                    if($stmt->affected_rows != 0) {
+                        if(!isset($_POST["ref"])) {
+                            $_SESSION['title'] = "Repor Password Utilizador";
+                            $_SESSION['success'] = "Password Reposta com sucesso";
+                            header("location: /");
+                        } else {
+                            $_SESSION['title'] = "Repor Password Utilizador";
+                            $_SESSION['success'] = "Password Reposta com sucesso";
+                            header("location: " . $_POST["ref"]);
+                        }
+                    } else {
+                        $_SESSION['title'] = "Repor Password Utilizador";
+                        $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
+                        header("location: /");
+                    }
+                    $stmt->close();
+                } else {
+                    $_SESSION['title'] = "Repor Password Utilizador";
+                    $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
+                    header("location: /");
+                }
+            } else {
+                $_SESSION['title'] = "Repor Password Utilizador";
+                $_SESSION['error'] = "O id tem que ser um numero";
+                header("location: /");
+            }
+        }
+        else
+        {
+            echo('a');
+        }
+    }
+    else
+    {
         header("location: /");
-        exit;
     }
 }
 ?>

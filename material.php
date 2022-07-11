@@ -13,6 +13,12 @@
             $action = "Ver Material";
         } elseif($_GET["action"] == "add") {
             $action = "Adicionar Material";
+        } elseif($_GET["action"] == "edit") {
+            $action = "Editar Material";
+            if (!isset($_GET["id"])) {
+                header('location: /room.php');
+                exit();
+            }
         } else {
             $action = "Ver Material";
         }
@@ -63,7 +69,7 @@
         <title>School Management</title>
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
         <link href="css/styles.css" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />    </head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />    </head>
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
@@ -78,9 +84,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="/user-settings.php">Configurações</a></li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="/logout.php">Terminar Sessão</a></li>
+                       <li><a class="dropdown-item" href="/logout.php">Terminar Sessão</a></li>
                     </ul>
                 </li>
             </ul>
@@ -248,7 +252,8 @@
                                     } else {
                                         echo "<td><a href='/computer.php?id=$computer'>$computer</a></td>";
                                     }
-                                    echo "<td><button class='btn btn-danger' onclick='alert($sheesh relou $sheesh)'><i class='fa-solid fa-x'></i> Remover</button>";
+                                    echo "<td><button class='btn btn-danger' onclick='postModal($id, $sheesh$name$sheesh)'><i class='fa-solid fa-x'></i> Remover</button>";
+                                    echo " <button class='btn btn-primary' onclick='window.location.href = $sheesh/material.php?action=edit&id=$id$sheesh'><i class='fa-solid fa-x'></i> Editar</button>";
                                     if($computer == null) {
                                         $link = '"/asspc.php?id=' . $id . '"';
                                         echo " <button class='btn btn-primary' onclick='location.replace($link)'><i class='fa-solid fa-x'></i> Associar Computador</button>";
@@ -261,6 +266,69 @@
                                 </table>
                                 </div>
                                 </div>";
+                        }elseif($action == "Editar Material") {
+                            include_once('config.php');
+                            if($stmt = $con->prepare("SELECT name, type, room, computerid FROM material WHERE id = ?;"))
+                            {
+                                $stmt->bind_param("i", $_GET['id']);
+                                $stmt->execute();
+                                $stmt->store_result();
+                                $stmt->bind_result($name, $typeid, $roomid, $computerid);
+                                $stmt->fetch();
+                                echo '<div class="card-text bg-dark text-white">
+                                    <form action="/matman.php" method="POST">
+                                        <label for="nombre" class="form-label">Nome do Material: </label>
+                                        <input type="text" name="nombre" placeholder="Nome do Material" id="nombre" value="' . $name . '" required class="form-control w-25">
+                                        <br>
+                                        <label for="tipo" class="form-label">Tipo: </label>
+                                        <select class="form-select w-25" id="tipo" name="tipo">';
+                                if($select = $con->prepare('SELECT id, type FROM type;')) {
+                                    $select->execute();
+                                    $select->store_result();
+                                    $select->bind_result($id, $type);
+                                    while($select->fetch()) {
+                                        if($id == $typeid)
+                                        {
+                                            echo '<option class="form-control w-25" value="' . $id . '" selected>' . $id . " - " . $type . '</option>';
+                                        }
+                                        else
+                                        {
+                                            echo '<option class="form-control w-25" value="' . $id . '" >' . $id . " - " . $type . '</option>';
+                                        }
+                                    }
+                                    $select->close();
+                                }
+                                
+                                echo   '</select>
+                                        <br>
+                                        <label for="room" class="form-label">Sala: </label>
+                                        <select class="form-select w-25" id="room" name="room">';
+
+                                if($select = $con->prepare('SELECT classroom.id, pavilhoes.pavilhao, numero FROM classroom INNER JOIN pavilhoes ON classroom.pavilhao = pavilhoes.id;')) {
+                                    $select->execute();
+                                    $select->store_result();
+                                    $select->bind_result($id, $pav, $num);
+                                    while($select->fetch()) {
+                                        if($id == $roomid)
+                                        {
+                                            echo '<option class="form-control w-25" value="' . $id . '" selected>' . $pav . ' - ' . $num . '</option>';
+                                        }
+                                        else
+                                        {
+                                            echo '<option class="form-control w-25" value="' . $id . '">' . $pav . ' - ' . $num . '</option>';
+                                        }
+                                    }
+                                    $select->close();
+                                }
+
+                                echo   '</select>
+                                        <br>
+                                        <input type="hidden" name="type" value="edit">
+                                        <input type="hidden" name="id" value="' . $_GET['id'] . '">
+                                        <button type="submit" class="btn btn-primary">Editar Material</button>
+                                    </form>
+                                </div>';
+                            }
                         }
                         ?>
                     </div>
@@ -291,7 +359,7 @@
         <script>
             function postModal(id, name) {
                 let postdata = { "type": "rem", "id": id, "ref": window.location.href };
-                showPostModal('Remover Utilizador', `Tem a certeza que pretende remover ${name}?`, 'Remover', 'Cancelar', "/matman.php", postdata, cb = function() {});
+                showPostModal('Remover Material', `Tem a certeza que pretende remover ${name}?`, 'Remover', 'Cancelar', "/matman.php", postdata, cb = function() {});
             }
 
             $(document).ready(function() {
@@ -304,6 +372,15 @@
                         echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['error'] . '", "Fechar")';
                     }
                     $_SESSION['error'] = null;
+                    $_SESSION['title'] = null;
+                }
+                if(isset($_SESSION['success'])) {
+                    if(!isset($_SESSION['title'])) {
+                        echo 'show1btnModal("Alerta", "' . $_SESSION['success'] . '", "Fechar")';
+                    } else {
+                        echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['success'] . '", "Fechar")';
+                    }
+                    $_SESSION['success'] = null;
                     $_SESSION['title'] = null;
                 }
                 ?>

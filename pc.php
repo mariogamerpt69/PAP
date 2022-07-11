@@ -51,23 +51,23 @@
                         $insert->close();
                         header("location: /pcs.php");
                     } else {
-                        $_SESSION['title'] = "Adicionar Sala";
+                        $_SESSION['title'] = "Adicionar Computador";
                         $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
                         header("location: /");
                     }
                     $stmt->close();
                 } else {
-                    $_SESSION['title'] = "Adicionar Sala";
+                    $_SESSION['title'] = "Adicionar Computador";
                     $_SESSION['error'] = "O Identificador $identifier já existe";
                     header("location: /");
                 }
             } else {
-                $_SESSION['title'] = "Adicionar Sala";
+                $_SESSION['title'] = "Adicionar Computador";
                 $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
                 header("location: /");
             }
         } else {
-            $_SESSION['title'] = "Adicionar Sala";
+            $_SESSION['title'] = "Adicionar Computador";
             $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
             header("location: /");
         }
@@ -79,19 +79,67 @@
             if($stmt = $con->prepare("DELETE FROM `computers` WHERE `id` = ?")) {
                 $stmt->bind_param('i', $_POST['id']);
                 $stmt->execute();
+                if($stmt->affected_rows != 0) {
+                    if(!isset($_POST["ref"])) {
+                        $_SESSION['title'] = "Remover Computador";
+                        $_SESSION['success'] = "Computador Removida";
+                        header("location: /");
+                    } else {
+                        $_SESSION['title'] = "Remover Computador";
+                        $_SESSION['success'] = "Computador Removida";
+                        header("location: " . $_POST["ref"]);
+                    }
+                } else {
+                    $_SESSION['title'] = "Remover Computador";
+                    $_SESSION['error'] = "Não Pode apagar um Computador com matrial associado";
+                    header("location: /");
+                }
             } else {
-                $_SESSION['title'] = "Remover Sala";
+                $_SESSION['title'] = "Remover Computador";
                 $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
                 header("location: /");
             }
         } else {
-            $_SESSION['title'] = "Remover Sala";
-            $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
             header("location: /");
         }
     }
 
     function edit() {
-
+        if($_SERVER["REQUEST_METHOD"] == "POST") {
+            if(isset($_POST['id'], $_POST['identifier'], $_POST['room'])) {
+                if(is_numeric($_POST["id"])) {
+                    include_once('config.php');
+                    if($stmt = $con->prepare("UPDATE `computers` SET `identifier` = ?, `room` = ? WHERE `id` = ?")) {
+                        $stmt->bind_param('ssi', $_POST['identifier'], $_POST['room'], $_POST['id']);
+                        $stmt->execute();
+                        if($stmt->affected_rows != 0) {
+                            $_SESSION['title'] = "Editar Computador";
+                            $_SESSION['success'] = "Computador Editado com Sucesso";
+                            header("location: /");
+                        } else {
+                            $_SESSION['title'] = "Editar Computador";
+                            $_SESSION['error'] = "Nenhuma alteração efetuada";
+                            header("location: /");
+                        }
+                        $stmt->close();
+                    } else {
+                        $_SESSION['title'] = "Editar Computador";
+                        $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
+                        header("location: /");
+                    }
+                } else {
+                    $_SESSION['title'] = "Editar Computador";
+                    $_SESSION['error'] = "O id tem que ser um numero";
+                    header("location: /");
+                }
+            } else {
+                $_SESSION['title'] = "Editar Computador";
+                $_SESSION['error'] = "Insira todos os dados";
+                header("location: /");
+            }
+        } else {
+            header("location: /");
+            exit;
+        }
     }
 ?>

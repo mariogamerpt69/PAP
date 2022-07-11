@@ -13,8 +13,12 @@
             $action = "Ver Salas";
         } elseif($_GET["action"] == "add") {
             $action = "Adicionar Salas";
-        } elseif($_GET["action"] == "rem") {
-            $action = "Remover Salas";
+        } elseif($_GET["action"] == "edit") {
+            $action = "Editar Salas";
+            if (!isset($_GET["id"])) {
+                header('location: /room.php');
+                exit();
+            }
         } else {
             $action = "Ver Salas";
         }
@@ -27,7 +31,7 @@
         <title>School Management</title>
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
         <link href="css/styles.css" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />    </head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />    </head>
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
@@ -42,9 +46,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="/user-settings.php">Configurações</a></li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="/logout.php">Terminar Sessão</a></li>
+                       <li><a class="dropdown-item" href="/logout.php">Terminar Sessão</a></li>
                     </ul>
                 </li>
             </ul>
@@ -126,8 +128,8 @@
                         <?php
                         if($action == "Adicionar Salas") {
                             echo '<div class="card-text bg-dark text-white">
-                                <form action="/usermanagement.php" method="POST">
-                                    <label for="number" class="form-label">Nome: </label>
+                                <form action="/test.php" method="POST">
+                                    <label for="number" class="form-label">Numero: </label>
                                     <input type="text" name="number" placeholder="Numero" id="number" required class="form-control w-25">
                                     <br>
                                     <label for="pav" class="form-label">Pavilhão: </label>
@@ -151,7 +153,51 @@
                                     <button type="submit" class="btn btn-primary">Criar Conta</button>
                                 </form>
                             </div>';
-                        } elseif($action == "Ver Salas") {
+                        }
+                        elseif($action == "Editar Salas") {
+                            include_once('config.php');
+                            if($stmt = $con->prepare("SELECT pavilhao, numero FROM classroom WHERE id=?"))
+                            {
+                                $stmt->bind_param("i", $_GET['id']);
+                                $stmt->execute();
+                                $stmt->store_result();
+                                $stmt->bind_result($pavid, $num);
+                                $stmt->fetch();
+                                echo '<div class="card-text bg-dark text-white">
+                                    <form action="/roomman.php" method="POST">
+                                    
+                                        <label for="number" class="form-label">Nome:</label>
+                                        <input type="text" name="number" placeholder="Numero" id="number" required class="form-control w-25" value="' . $num . '">
+                                        <br>
+                                        <label for="pav" class="form-label">Pavilhão: </label>
+                                        <select class="form-select w-25" id="pav" name="pav">';
+                                
+                                if($stmt2 = $con->prepare('SELECT id, pavilhao FROM pavilhoes;')) {
+                                    $stmt2->execute();
+                                    $stmt2->store_result();
+                                    $stmt2->bind_result($id, $pav);
+                                    while($stmt2->fetch()) {
+                                        if($id == $pavid) {
+                                            echo '<option class="form-control w-25" value="' . $id . '" selected>' . $pav . '</option>';
+                                        } else {
+                                            echo '<option class="form-control w-25" value="' . $id . '">' . $pav . '</option>';
+                                        }
+                                    }
+                                }
+                                echo   '</select>
+                                        <br>
+                                        <input type="hidden" name="type" value="edit">
+                                        <input type="hidden" name="id" value="' . $_GET['id'] . '">
+                                        <button type="submit" class="btn btn-primary">Editar</button>
+                                    </form>
+                                </div>';
+                            }
+                            else
+                            {
+                                header("location: /");
+                            }
+                        }
+                        elseif($action == "Ver Salas") {
                             include_once('config.php');
                             echo '<div class="card mb-4 text-dark">
                             <div class="card-body">
@@ -185,9 +231,11 @@
                                     echo "<td>". $num ."</td>";
                                     if($_SESSION['perm'] == "superadmin" || $_SESSION['perm'] == "owner") {
                                         $sheesh = "'";
-                                        echo '<td><button class="btn btn-danger" onclick="alert('. $sheesh .'relou'. $sheesh .')"><i class="fa-solid fa-x"></i> Remover</button></td>';
+                                        echo '<td><button class="btn btn-danger" onclick="postModal(' . $id . ',' . $sheesh . $num . $sheesh .')"><i class="fa-solid fa-x"></i> Remover</button>';
+                                        echo '<button class="btn btn-primary" onclick="window.location.href = ' . $sheesh . 'room.php?action=edit&id=' . $id . $sheesh .'"><i class="fa-solid fa-pen"></i> Editar</button></td>';
                                     } else {
-                                        echo '<td><button class="btn btn-danger disabled" role="button" aria-disabled="true"><i class="fa-solid fa-x"></i> Remover</button></td>';
+                                        echo '<td><button class="btn btn-danger disabled" role="button" aria-disabled="true"><i class="fa-solid fa-x"></i> Remover</button>';
+                                        echo '<button class="btn btn-primary disabled" role="button" aria-disabled="true"><i class="fa-solid fa-pen"></i> Editar</button></td>';
                                     }
                                     echo "</tr>";
                                 }
@@ -223,6 +271,11 @@
             });
         </script>
         <script>
+            function postModal(id, name) {
+                let postdata = { "type": "rem", "id": id, "ref": window.location.href };
+                showPostModal('Remover Sala', `Tem a certeza que pretende remover a Sala ${name}?`, 'Remover', 'Cancelar', "/roomman.php", postdata, cb = function() {});
+            }
+
             $(document).ready(function() {
                 let a = 0;
                 <?php
@@ -233,6 +286,15 @@
                         echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['error'] . '", "Fechar")';
                     }
                     $_SESSION['error'] = null;
+                    $_SESSION['title'] = null;
+                }
+                if(isset($_SESSION['success'])) {
+                    if(!isset($_SESSION['title'])) {
+                        echo 'show1btnModal("Alerta", "' . $_SESSION['success'] . '", "Fechar")';
+                    } else {
+                        echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['success'] . '", "Fechar")';
+                    }
+                    $_SESSION['success'] = null;
                     $_SESSION['title'] = null;
                 }
                 ?>

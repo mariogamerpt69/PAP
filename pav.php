@@ -15,6 +15,12 @@
             $action = "Adicionar Pavilhões";
         } elseif($_GET["action"] == "rem") {
             $action = "Remover Pavilhões";
+        } elseif($_GET["action"] == "edit") {
+            $action = "Editar Pavilhões";
+            if (!isset($_GET["id"])) {
+                header('location: /room.php');
+                exit();
+            }
         } else {
             $action = "Ver Pavilhões";
         }
@@ -27,7 +33,7 @@
         <title>School Management</title>
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
         <link href="css/styles.css" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />    </head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />    </head>
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
@@ -42,9 +48,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="/user-settings.php">Configurações</a></li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="/logout.php">Terminar Sessão</a></li>
+                       <li><a class="dropdown-item" href="/logout.php">Terminar Sessão</a></li>
                     </ul>
                 </li>
             </ul>
@@ -165,9 +169,11 @@
                                     <td>'. $pav .'</td>';
                                     if($_SESSION['perm'] == "superadmin" || $_SESSION['perm'] == "owner") {
                                         $sheesh = "'";
-                                        echo '<td><button class="btn btn-danger" onclick="postModal(' . $id . ',' . $sheesh . $pav . $sheesh .')"><i class="fa-solid fa-x"></i> Remover</button></td>';
+                                        echo '<td><button class="btn btn-danger" onclick="postModal(' . $id . ',' . $sheesh . $pav . $sheesh .')"><i class="fa-solid fa-x"></i> Remover</button>';
+                                        echo '<button class="btn btn-primary" onclick="window.location.href = ' . $sheesh . 'pav.php?action=edit&id=' . $id . $sheesh .'"><i class="fa-solid fa-pen"></i> Editar</button></td>';
                                     } else {
                                         echo '<td><button class="btn btn-danger disabled" role="button" aria-disabled="true"><i class="fa-solid fa-x"></i> Remover</button></td>';
+                                        echo '<button class="btn btn-primary disabled" role="button" aria-disabled="true"><i class="fa-solid fa-pen"></i> Editar</button></td>';
                                     }
                                     echo '</tr>';
                                 }
@@ -176,6 +182,32 @@
                                 </table>
                                 </div>
                                 </div>';
+                        }
+                        elseif($action == "Editar Pavilhões") {
+                            include_once('config.php');
+                            if($stmt = $con->prepare("SELECT pavilhao FROM pavilhoes WHERE id=?"))
+                            {
+                                $stmt->bind_param("i", $_GET['id']);
+                                $stmt->execute();
+                                $stmt->store_result();
+                                $stmt->bind_result($nome);
+                                $stmt->fetch();
+                                echo '<div class="card-text bg-dark text-white">
+                                    <form action="/pavman.php" method="POST">
+                                    
+                                        <label for="number" class="form-label">Nome:</label>
+                                        <input type="text" name="number" placeholder="Nome" id="nome" required class="form-control w-25" value="' . $nome . '">
+                                        <br>
+                                        <input type="hidden" name="type" value="edit">
+                                        <input type="hidden" name="id" value="' . $_GET['id'] . '">
+                                        <button type="submit" class="btn btn-primary">Editar</button>
+                                    </form>
+                                </div>';
+                            }
+                            else
+                            {
+                                header("location: /");
+                            }
                         }
                         ?>
                     </div>
@@ -218,6 +250,15 @@
                         echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['error'] . '", "Fechar")';
                     }
                     $_SESSION['error'] = null;
+                    $_SESSION['title'] = null;
+                }
+                if(isset($_SESSION['success'])) {
+                    if(!isset($_SESSION['title'])) {
+                        echo 'show1btnModal("Alerta", "' . $_SESSION['success'] . '", "Fechar")';
+                    } else {
+                        echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['success'] . '", "Fechar")';
+                    }
+                    $_SESSION['success'] = null;
                     $_SESSION['title'] = null;
                 }
                 ?>

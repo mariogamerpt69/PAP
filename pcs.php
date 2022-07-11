@@ -10,6 +10,12 @@
             $action = "Ver Computadores";
         } elseif($_GET["action"] == "add") {
             $action = "Adicionar Computadores";
+        } elseif($_GET["action"] == "edit") {
+            $action = "Editar Computadores";
+            if (!isset($_GET["id"])) {
+                header('location: /room.php');
+                exit();
+            }
         } else {
             $action = "Ver Computadores";
         }
@@ -22,7 +28,7 @@
         <title>School Management</title>
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
         <link href="css/styles.css" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />    </head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />    </head>
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
@@ -37,9 +43,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="/user-settings.php">Configurações</a></li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="/logout.php">Terminar Sessão</a></li>
+                       <li><a class="dropdown-item" href="/logout.php">Terminar Sessão</a></li>
                     </ul>
                 </li>
             </ul>
@@ -129,11 +133,11 @@
                                     <select class="form-select w-25" id="room" name="room">
                                     ';
                             include_once('config.php');
-                            if($stmt = $con->prepare("SELECT id, numero FROM classroom;")) {
+                            if($stmt = $con->prepare("SELECT classroom.id, classroom.numero, pavilhoes.pavilhao FROM classroom inner join pavilhoes on classroom.pavilhao = pavilhoes.id;")) {
                                 $stmt->execute();
-                                $stmt->bind_result($id, $numero);
+                                $stmt->bind_result($id, $numero, $pav);
                                 while($stmt->fetch()) {
-                                    echo '<option value="'.$id.'">'.$numero.'</option>';
+                                    echo '<option value="'.$id.'">' . $pav . " - " .$numero.'</option>';
                                 }
                             }
                             echo   '</select>
@@ -176,8 +180,9 @@
                                     <td>". $id ."</td>
                                     <td>". $identifier ."</td>
                                     <td>". $classroom ."</td>
-                                    <td><button class='btn btn-danger' onclick= $sheesh alert('relou')$sheesh><i class='fa-solid fa-x'></i> Remover</button>
-                                    <button class='btn btn-primary' onclick='location.replace($link)'><i class='fa-solid fa-eye'></i> Ver Material</button></td>
+                                    <td><button class='btn btn-danger' onclick=$sheesh postModal($id,'$identifier')$sheesh><i class='fa-solid fa-x'></i> Remover</button>
+                                    <button class='btn btn-primary' onclick=$sheesh window.location.href = '/pcs.php?action=edit&id=$id'$sheesh><i class='fa-solid fa-pen'></i> Editar</button>
+                                    <button class='btn btn-primary' onclick='location.replace($link)'><i class='fa-solid fa-eye'></i> Ver Material</button></>
                                     </tr>";
                                 }
                             }
@@ -185,6 +190,51 @@
                                 </table>
                                 </div>
                                 </div>";
+                        }
+                        elseif($action == "Editar Computadores")
+                        {
+                            include_once('config.php');
+                            if($stmt = $con->prepare("SELECT identifier, room FROM computers WHERE id=?"))
+                            {
+                                $stmt->bind_param("i", $_GET['id']);
+                                $stmt->execute();
+                                $stmt->store_result();
+                                $stmt->bind_result($identifier, $roomid);
+                                $stmt->fetch();
+                                echo '<div class="card-text bg-dark text-white">
+                                    <form action="/pc.php" method="POST">
+                                    
+                                        <label for="number" class="form-label">Identifier:</label>
+                                        <input type="text" name="identifier" placeholder="Numero" id="number" required class="form-control w-25" value="' . $identifier . '">
+                                        <br>
+                                        <label for="pav" class="form-label">Sala: </label>
+                                        <select class="form-select w-25" id="room" name="room">';
+                                if($stmt = $con->prepare("SELECT classroom.id, classroom.numero, pavilhoes.pavilhao FROM classroom inner join pavilhoes on classroom.pavilhao = pavilhoes.id;")) {
+                                    $stmt->execute();
+                                    $stmt->bind_result($id, $numero, $pav);
+                                    while($stmt->fetch()) {
+                                        if($id == $roomid)
+                                        {
+                                            echo '<option value="'.$id.'" selected>' . $pav . " - " .$numero.'</option>';
+                                        }
+                                        else
+                                        {
+                                            echo '<option value="'.$id.'">' . $pav . " - " .$numero.'</option>';
+                                        }
+                                    }
+                                }
+                                echo   '</select>
+                                        <br>
+                                        <input type="hidden" name="type" value="edit">
+                                        <input type="hidden" name="id" value="' . $_GET['id'] . '">
+                                        <button type="submit" class="btn btn-primary">Editar</button>
+                                    </form>
+                                </div>';
+                            }
+                            else
+                            {
+                                header("Location: /");
+                            }
                         }
                         ?>
                     </div>
@@ -212,6 +262,11 @@
                 }
             });
 
+            function postModal(id, name) {
+                let postdata = { "type": "rem", "id": id, "ref": window.location.href };
+                showPostModal('Remover Computador', `Tem a certeza que pretende remover o computador ${name}?`, 'Remover', 'Cancelar', "/pc.php", postdata, cb = function() {});
+            }
+
             $(document).ready(function() {
                 let a = 0;
                 <?php
@@ -222,6 +277,15 @@
                         echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['error'] . '", "Fechar")';
                     }
                     $_SESSION['error'] = null;
+                    $_SESSION['title'] = null;
+                }
+                if(isset($_SESSION['success'])) {
+                    if(!isset($_SESSION['title'])) {
+                        echo 'show1btnModal("Alerta", "' . $_SESSION['success'] . '", "Fechar")';
+                    } else {
+                        echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['success'] . '", "Fechar")';
+                    }
+                    $_SESSION['success'] = null;
                     $_SESSION['title'] = null;
                 }
                 ?>

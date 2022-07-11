@@ -33,19 +33,20 @@ if($_POST['type'] == "add") {
 
 function add() {
     if($_SERVER["REQUEST_METHOD"] == "POST") {
-        if(isset($_POST["nombre"], $_POST["tipo"], $_POST["room"])) {
+        if(isset($_POST["number"], $_POST["pav"])) {
             include_once('config.php');
-            if($stmt = $con->prepare("INSERT INTO `material` (`name`,`type`,`room`) VALUES (?,?,?)")) {
-                $stmt->bind_param('sii', $_POST["nombre"], $_POST["tipo"], $_POST["room"]);
+            if($stmt = $con->prepare("INSERT INTO `classroom` (`pavilhao`, `numero`) VALUES (?, ?)")) {
+                $stmt->bind_param('ss', $_POST["number"], $_POST["pav"]);
                 $stmt->execute();
-                header("location: /material.php");
+                $stmt->store_result();
+                $stmt->close();
             } else {
-                $_SESSION['title'] = "Adicionar Material";
+                $_SESSION['title'] = "Criar Sala";
                 $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
                 header("location: /");
             }
         } else {
-            $_SESSION['title'] = "Adicionar Material";
+            $_SESSION['title'] = "Criar Sala";
             $_SESSION['error'] = "Por Favor Insira todos os dados";
             header("location: /");
         }
@@ -60,37 +61,37 @@ function remove() {
         if(isset($_POST['id'])) {
             if(is_numeric($_POST["id"])) {
                 include_once('config.php');
-                if($stmt = $con->prepare("DELETE FROM material WHERE id = ?")) {
+                if($stmt = $con->prepare("DELETE FROM users WHERE id = ?")) {
                     $stmt->bind_param('i', $_POST['id']);
                     $stmt->execute();
                     if($stmt->affected_rows != 0) {
                         if(!isset($_POST["ref"])) {
-                            $_SESSION['title'] = "Remover Material";
-                            $_SESSION['success'] = "Material Removido";
+                            $_SESSION['title'] = "Remover Sala";
+                            $_SESSION['success'] = "Sala Removida";
                             header("location: /");
                         } else {
-                            $_SESSION['title'] = "Remover Material";
-                            $_SESSION['success'] = "Material Removido";
+                            $_SESSION['title'] = "Remover Sala";
+                            $_SESSION['success'] = "Sala Removida";
                             header("location: " . $_POST["ref"]);
                         }
                     } else {
-                        $_SESSION['title'] = "Remover Material";
-                        $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
+                        $_SESSION['title'] = "Remover Sala";
+                        $_SESSION['error'] = "Não Pode apagar uma sala com matrial associado";
                         header("location: /");
                     }
+                    $stmt->close();
                 } else {
-                    $_SESSION['title'] = "Remover Material";
+                    $_SESSION['title'] = "Remover Sala";
                     $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
                     header("location: /");
                 }
-                $stmt->close();
             } else {
-                $_SESSION['title'] = "Remover Material";
+                $_SESSION['title'] = "Remover Sala";
                 $_SESSION['error'] = "O id tem que ser um numero";
                 header("location: /");
             }
         } else {
-            $_SESSION['title'] = "Remover Material";
+            $_SESSION['title'] = "Remover Sala";
             $_SESSION['error'] = "Insira todos os dados";
             header("location: /");
         }
@@ -102,34 +103,34 @@ function remove() {
 
 function edit() {
     if($_SERVER["REQUEST_METHOD"] == "POST") {
-        if(isset($_POST["nombre"], $_POST["tipo"], $_POST["room"], $_POST['id'])) {
+        if(isset($_POST['id'], $_POST['number'], $_POST['pav'])) {
             if(is_numeric($_POST["id"])) {
                 include_once('config.php');
-                if($stmt = $con->prepare("UPDATE `material` SET `name` = ?, `type` = ?, `room` = ? WHERE `id` = ?")) {
-                    $stmt->bind_param('siii', $_POST["nombre"], $_POST["tipo"], $_POST["room"], $_POST['id']);
-                    $stmt->execute(); 
+                if($stmt = $con->prepare("UPDATE `classroom` SET `numero` = ?, `pavilhao` = ? WHERE `id` = ?")) {
+                    $stmt->bind_param('ssi', $_POST['number'], $_POST['pav'], $_POST['id']);
+                    $stmt->execute();
                     if($stmt->affected_rows != 0) {
-                        $_SESSION['title'] = "Editar Material";
-                        $_SESSION['success'] = "Material Editada com Sucesso";
+                        $_SESSION['title'] = "Editar Sala";
+                        $_SESSION['success'] = "Sala Editada com Sucesso";
                         header("location: /");
                     } else {
-                        $_SESSION['title'] = "Editar Material";
+                        $_SESSION['title'] = "Editar Sala";
                         $_SESSION['error'] = "Nenhuma alteração efetuada";
                         header("location: /");
                     }
                     $stmt->close();
                 } else {
-                    $_SESSION['title'] = "Editar Material";
+                    $_SESSION['title'] = "Editar Sala";
                     $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
                     header("location: /");
                 }
             } else {
-                $_SESSION['title'] = "Editar Material";
+                $_SESSION['title'] = "Editar Sala";
                 $_SESSION['error'] = "O id tem que ser um numero";
                 header("location: /");
             }
         } else {
-            $_SESSION['title'] = "Editar Material";
+            $_SESSION['title'] = "Editar Sala";
             $_SESSION['error'] = "Insira todos os dados";
             header("location: /");
         }

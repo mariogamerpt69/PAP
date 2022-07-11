@@ -119,7 +119,37 @@ function remove() {
 
 function edit() {
     if($_SERVER["REQUEST_METHOD"] == "POST") {
-        
+        if(isset($_POST['id'], $_POST['number'])) {
+            if(is_numeric($_POST["id"])) {
+                include_once('config.php');
+                if($stmt = $con->prepare("UPDATE `pavilhoes` SET `pavilhao` = ? WHERE `id` = ?")) {
+                    $stmt->bind_param('si', $_POST['number'], $_POST['id']);
+                    $stmt->execute();
+                    if($stmt->affected_rows != 0) {
+                        $_SESSION['title'] = "Editar Pavilhão";
+                        $_SESSION['success'] = "Pavilhão Editada com Sucesso";
+                        header("location: /");
+                    } else {
+                        $_SESSION['title'] = "Editar Pavilhão";
+                        $_SESSION['error'] = "Nenhuma alteração efetuada";
+                        header("location: /");
+                    }
+                    $stmt->close();
+                } else {
+                    $_SESSION['title'] = "Editar Pavilhão";
+                    $_SESSION['error'] = "Erro na Base de Dados, Contacte um administrador";
+                    header("location: /");
+                }
+            } else {
+                $_SESSION['title'] = "Editar Pavilhão";
+                $_SESSION['error'] = "O id tem que ser um numero";
+                header("location: /");
+            }
+        } else {
+            $_SESSION['title'] = "Editar Pavilhão";
+            $_SESSION['error'] = "Insira todos os dados";
+            header("location: /");
+        }
     } else {
         header("location: /");
         exit;

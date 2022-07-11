@@ -7,8 +7,8 @@
         <meta charset="utf-8" />
         <title>School Management</title>
         <link href="css/styles.css" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />    </head>
-    <body class="sb-nav-fixed">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
             <a class="navbar-brand ps-3" href="/">School Management</a>
@@ -24,9 +24,7 @@
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <?php
                         if(isset($_SESSION['loggedin'])) {
-                            echo '<li><a class="dropdown-item" href="/user-settings.php">Configurações</a></li>
-                            <li><hr class="dropdown-divider" /></li>
-                            <li><a class="dropdown-item" href="/logout.php">Terminar Sessão</a></li>';
+                            echo '<li><a class="dropdown-item" href="/logout.php">Terminar Sessão</a></li>';
                         } else {
                             echo '<li><a class="dropdown-item" href="/login.php">Iniciar Sessão</a></li>';
                         }
@@ -121,7 +119,7 @@
                     </div>
                     <div class="sb-sidenav-footer">
                         <div class="small">Logado como:</div>
-                        <?php 
+                        <?php
                             if(!isset($_SESSION['loggedin'])) {
                                 echo "<a href = '/login.php'>Iniciar Sessão</a>";
                             } else {
@@ -142,13 +140,79 @@
                             <h5>A disciplina profissional, porém, não é importante apenas pensando na estabilidade da vida profissional. Ela é igualmente favorável para a lucratividade das empresas. Isso porque, quanto mais tempo o trabalhador passa arrumando o ambiente de trabalho, menos produtivo ele. E, portanto, menos lucros traz para o negócio.</li>
                             <br>
                             <br>
-                            <img src="/img/2.png" alt="alguma imagem idk">
+                            <img src="/img/2.png" alt="Image">
                             <br>
                             <br>
-                            <img src="/img/1.png" alt="alguma imagem idk">
+                            <img src="/img/1.png" alt="Image">
                         </div>';
                     } else {
-                        echo '';
+                        include_once('config.php');
+                        $pcs = 0;
+                        $rooms = 0;
+                        $pavs = 0;
+                        $mats = 0;
+                        $users = 0;
+                        if($stmt = $con->prepare("SELECT COUNT(`id`) FROM `computers`")) {
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $pcs = $count;
+                            $stmt->close();
+                        }
+                        if($stmt = $con->prepare("SELECT COUNT(`id`) FROM `classroom`")) {
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $rooms = $count;
+                            $stmt->close();
+                        }
+                        if($stmt = $con->prepare("SELECT COUNT(`id`) FROM `pavilhoes`")) {
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $pavs = $count;
+                            $stmt->close();
+                        }
+                        if($stmt = $con->prepare("SELECT COUNT(`id`) FROM `material`")) {
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $mats = $count;
+                            $stmt->close();
+                        }
+                        if($stmt = $con->prepare("SELECT COUNT(`id`) FROM `users`")) {
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $users = $count;
+                            $stmt->close();
+                        }
+                        echo '<div class="container-fluid px-4 bg-dark text-white">
+                            <div class="card bg-dark text-white">
+                                <div class="card-group">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Numero total de PCs registados</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">'. $pcs .' <i class="fa-solid fa-laptop-code"></i></h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Numero total de Salas registadas</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">'. $rooms .' <i class="fa-solid fa-hotel"></i></h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Numero total de Pavilhões registados</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">'. $pavs .' <i class="fa-solid fa-place-of-worship"></i></h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Numero total de Materias registados</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">'. $mats .' <i class="fa-solid fa-floppy-disk"></i></h6>
+                                    </div>  
+                                    <div class="card-body">
+                                        <h5 class="card-title">Numero total de Utilizadores registados</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">'. $users .' <i class="fa-solid fa-user"></i></h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>';
                     }
                     ?>
                 </main>
@@ -186,6 +250,15 @@
                         echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['error'] . '", "Fechar")';
                     }
                     $_SESSION['error'] = null;
+                    $_SESSION['title'] = null;
+                }
+                if(isset($_SESSION['success'])) {
+                    if(!isset($_SESSION['title'])) {
+                        echo 'show1btnModal("Alerta", "' . $_SESSION['success'] . '", "Fechar")';
+                    } else {
+                        echo 'show1btnModal("' . $_SESSION['title'] . '", "' . $_SESSION['success'] . '", "Fechar")';
+                    }
+                    $_SESSION['success'] = null;
                     $_SESSION['title'] = null;
                 }
                 ?>
